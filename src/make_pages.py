@@ -129,11 +129,13 @@ plugins_info = {
     "dev_status_count":   {k: {"badge": v[1], "num_entries": 0} for k, v in status_dict.items()}
 }
 
-for f in os.listdir("html/"):
-    if not f.endswith(".html"):
-        continue
-    os.remove(os.path.join("html/", f))
-
+if os.path.exists("html/"):
+    for f in os.listdir("html/"):
+        if not f.endswith(".html"):
+            continue
+        os.remove(os.path.join("html/", f))
+else:
+    os.mkdir("html")
 # Render the plugin_template for each specific plugin data
 for plugin in plugins:
     summary_info = get_summary_info(plugin["entrypoints"])
