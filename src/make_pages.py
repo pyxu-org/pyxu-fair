@@ -2,85 +2,61 @@ import os
 from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 import sqlite3
+import json
 
 # from . import status_dict, entrypoint_metainfo
 
 entrypoint_metainfo = {
 
-    "pycsou.map": {
-        "shortname": "Map",
-        "longname": "Map operators, such as Map and DiffMap",
-        "colorclass": "blue",
-    },
-    "pycsou.func": {
-        "shortname": "Func",
-        "longname": "Functional operators, such as Func, DiffFunc, ProxFunc, LinFunc and QuadraticFunc",
-        "colorclass": "blue",
-    },
     "pycsou.operator": {
-        "shortname": "LinOp",
-        "longname": "Linear operators such as LinOp, SquareOp, NormalOp, SelfAdjointOp, UnitOp, ProjOp, OrthProjOp and PosDefOp ",
+        "shortname": "Operator",
         "colorclass": "blue",
     },
     "pycsou.solver": {
-        "shortname": "Solvers",
-        "longname": "Optimization algorithms",
+        "shortname": "Solver",
         "colorclass": "brown",
     },
     "pycsou.stop": {
         "shortname": "Stop",
-        "longname": "Stopping criteria for optimization algorithms",
-        "colorclass": "red",
+        "colorclass": "purple",
     },
     "pycsou.math": {
         "shortname": "Math",
-        "longname": "Mathematical utility functions and classes",
         "colorclass": "yellow",
     },
-    "pycsou.data": {
-        "shortname": "Data",
-        "longname": "Data loading/downloading/creation/simulation/splitting utility functions and classes",
-        "colorclass": "red",
-    },
-    "pycsou.io": {
-        "shortname": "I/O",
-        "longname": "Data reading/saving utility functions and classes",
-        "colorclass": "red",
-    },
-    "pycsou.pipeline": {
-        "shortname": "Pipelines",
-        "longname": "Optimization workflows",
-        "colorclass": "green",
+    "pycsou.contrib": {
+        "shortname": "Contrib",
+        "colorclass": "orange",
     },
 }
 # User-facing description of plugin development status
 status_dict = {
-    "planning": [
-        "Not yet ready to use. Developers welcome!",
+    "1": [
+        "Planning: Not yet ready to use. Developers welcome!",
         "status-planning-d9644d.svg",
     ],
-    "pre-alpha": [
-        "Not yet ready to use. Developers welcome!",
+    "2": [
+        "Pre-alpha: Not yet ready to use. Developers welcome!",
         "status-planning-d9644d.svg",
     ],
-    "alpha": [
-        "Adds new functionality, not yet ready for production. Testing welcome!",
+    "3": [
+        "Alpha: Adds new functionality, not yet ready for production. Testing welcome!",
         "status-alpha-d6af23.svg",
     ],
-    "beta": [
-        "Adds new functionality, not yet ready for production. Testing welcome!",
+    "4": [
+        "Beta: Adds new functionality, not yet ready for production. Testing welcome!",
         "status-beta-d6af23.svg",
     ],
-    "stable": [
-        "Ready for production calculations. Bug reports welcome!",
+    "5": [
+        "Production/Stable: Ready for production calculations. Bug reports welcome!",
         "status-stable-4cc61e.svg",
     ],
-    "mature": [
-        "Ready for production calculations. Bug reports welcome!",
+    "6": [
+        "Mature: Ready for production calculations. Bug reports welcome!",
         "status-stable-4cc61e.svg",
     ],
-    "inactive": [
-        "No longer maintained.",
+    "7": [
+        "Inactive: No longer maintained.",
         "status-inactive-bbbbbb.svg",
     ],
 }
@@ -94,7 +70,7 @@ def get_summary_info(entry_points):
     Note: this updates the global variables entrypoints_count and other_entrypoint_names.
     """
     summary_info = []
-    ep = (entry_points or {}).copy()
+    ep = json.loads(entry_points)
 
     # Collect entry points
     for entrypoint_name in entrypoint_metainfo.keys():
@@ -146,21 +122,44 @@ for row in c.fetchall():
     })
 conn.close()
 
-plugins_info = {"summary_info": {}, "dev_status": {}}
+plugins_info = {
+    "summary_info": {},
+    "dev_status": {},
+    "summary_info_count": {epm["shortname"]: {"colorclass": epm["colorclass"], "num_entries": 0, "name": epm["shortname"], "total_num": 0} for epm in entrypoint_metainfo.values()},
+    "dev_status_count":   {k: {"badge": v[1], "num_entries": 0} for k, v in status_dict.items()}
+}
+
+for f in os.listdir("html/"):
+    if not f.endswith(".html"):
+        continue
+    os.remove(os.path.join("html/", f))
+
 # Render the plugin_template for each specific plugin data
 for plugin in plugins:
     summary_info = get_summary_info(plugin["entrypoints"])
     dev_status = status_dict[plugin["development_status"]]
     plugins_info["summary_info"].update({plugin["name"]: summary_info})
     plugins_info["dev_status"].update({plugin["name"]: dev_status})
-    html = plugin_template.render(plugin=plugin, summary_info=summary_info, dev_status=dev_status)
-    with open(f'html/plugins/{plugin["name"]}.html', 'w') as f:
+    for entry in summary_info:
+        plugins_info["summary_info_count"][entry["text"]]["num_entries"] += entry["count"]
+        plugins_info["summary_info_count"][entry["text"]]["total_num"] += 1
+    plugins_info["dev_status_count"][plugin["development_status"]]["num_entries"] += 1
+    entrypoints = json.loads(plugin["entrypoints"])
+    html = plugin_template.render(plugin=plugin,
+                                  summary_info=summary_info,
+                                  dev_status=dev_status,
+                                  entry_points=entrypoints,
+                                  entrypointtypes=entrypoint_metainfo)
+    with open(f'html/{plugin["name"]}.html', 'w') as f:
         f.write(html)
 
 
 # Render the catalogue_template with the data for all the plugins
-html = catalogue_template.render(plugins=plugins, summary_info=plugins_info["summary_info"],
-                                 dev_status=plugins_info["dev_status"])
+html = catalogue_template.render(plugins=plugins,
+                                 summary_info=plugins_info["summary_info"],
+                                 dev_status=plugins_info["dev_status"],
+                                 dev_status_count=plugins_info["dev_status_count"],
+                                 summary_info_count=plugins_info["summary_info_count"].values(),)
 
 # Write the HTML to a file
 with open('html/index.html', 'w') as f:

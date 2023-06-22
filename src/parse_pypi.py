@@ -2,8 +2,14 @@ import sqlite3
 import re
 from typing import Dict
 
+import warnings
 import requests
 from requests.utils import requote_uri
+import configparser
+import tempfile
+import zipfile
+import json
+from pathlib import Path
 
 DATABASE_FILE = "plugins.db"
 #TROVE_CLASSIFIER = "Framework :: pycsou"
@@ -34,6 +40,51 @@ def query_pypi() -> Dict[str, str]:
     page += 1
     return packages
 
+class CaseSensitiveConfigParser(configparser.ConfigParser):
+    """Case sensitive config parser."""
+
+    optionxform = staticmethod(str)
+
+def parse_entrypoints(plugin_data, parse_wheel=True):
+    # We cannot read 'entry_points' from PyPI JSON so must download the wheel file
+    build_types = {}
+    for data in plugin_data.get("urls"):
+        if data.get("packagetype"):
+            build_types[data.get("packagetype")] = data.get("url")
+    if "bdist_wheel" not in build_types:
+        warnings.warn("No bdist_wheel available for PyPI release")
+        
+    if not build_types.get("bdist_wheel") or not parse_wheel:
+        return "{}"
+
+    try:
+        with requests.get(
+                build_types["bdist_wheel"], stream=True, timeout=120
+        ) as download:
+            download.raise_for_status()
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                with Path(tmpdirname, "wheel.whl").open("wb") as handle:
+                    for chunk in download.iter_content(chunk_size=8192):
+                        handle.write(chunk)
+                with zipfile.ZipFile(Path(tmpdirname, "wheel.whl")) as whl:
+                    # see https://packaging.python.org/en/latest/specifications/entry-points/#file-format
+                    entry_points_content = None
+                    for name in whl.namelist():
+                        if name.endswith(".dist-info/entry_points.txt"):
+                            entry_points_content = whl.read(name).decode("utf-8")
+                    if entry_points_content is None:
+                        raise IOError("No entry_points.txt found in wheel")
+                    parser = CaseSensitiveConfigParser()
+                    parser.read_string(entry_points_content)
+                    entry_points = {}
+                    for key, value in parser.items():
+                        if key == "DEFAULT":
+                            continue
+                        entry_points[key] = dict(value.items())
+    except Exception as err:  # pylint: disable=broad-except
+        warnings.warn(f"Unable to read wheel file from PyPI release: {err}")
+    return json.dumps(entry_points)
+
 def main():
     # Connect to the database
     conn = sqlite3.connect(DATABASE_FILE)
@@ -63,7 +114,7 @@ def main():
         description = plugin_data["info"]["description"]
         license = plugin_data["info"]["license"]
         development_status = plugin_data["info"].get("development_status", "planning")
-        entrypoints = None
+        entrypoints = parse_entrypoints(plugin_data)
 
         c.execute("INSERT INTO plugins VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (name, pycsou_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints))
 

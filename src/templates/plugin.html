@@ -1,13 +1,15 @@
 {% extends "templates/base.html" %}
 
-{% block logoimagesrc %}../../static/images/pycsou-fair.png{% endblock logoimagesrc %}
+{% block css %}
+    <link rel="stylesheet" href="../static/css/style.css">
+{% endblock css %}
 
 {% block body %}
 <main>
     <h1 class="plugin-header">
         Pycsou plugin package &quot;<a href="{{plugin.home_page}}">{{plugin.name}}</a>&quot;
     </h1>
-    <p><a href="../index.html">&lt; back to the registry index</a></p>
+    <p><a href="index.html">&lt; back to the registry index</a></p>
 
     <h2>General information</h2>
     <div>
@@ -20,21 +22,9 @@
 
         <p class="currentstate">
             {% if dev_status %}
-            <img class="svg-badge" src="../../static/images/{{ dev_status[1] }}" title="{{ dev_status[0] }}">
-            {%- endif -%}
-            {%- if plugin.pycsou_version -%}
-                &nbsp;<img class="svg-badge" title="Compatible with Pycsou {{ plugin.pycsou_version }}" src="https://img.shields.io/badge/AiiDA-{{ plugin.pycsou_version }}-007ec6.svg?logo=data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAACMAAAAhCAYAAABTERJSAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAFhgAABYYBG6Yz4AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUbSURBVFiFzZhrbFRVEMd%2Fc%2B5uu6UUbIFC%2FUAUVEQCLbQJBIiBDyiImJiIhmohYNCkqJAQxASLF8tDgYRHBLXRhIcKNtFEhVDgAxBJqgmVh4JEKg3EIn2QYqBlt917xg%2BFss%2ByaDHOtzsz5z%2B%2FuZl7ztmF%2F5HJvxVQN6cPYX8%2FPLnOmsvNAvqfwuib%2FbNIk9cQeQnLcKRL5xLIV%2Fic9eJeunjPYbRs4FjQSpTB3aS1IpRKeeOOewajy%2FKKEO8Q0DuVdKy8IqsbPulxGHUfCBBu%2BwUYGuFuBTK7wQnht6PEbf4tlRomVRjCbXNjQEB0AyrFQOL5ENIJm7dTLZE6DPJCnEtFZVXDLny%2B4Sjv0PmmYu1ZdUek9RiMgoDmJ8V0L7XJqsZ3UW8YsBOwEeHeeFce7jEYXBy0m9m4BbXqSj2%2Bxnkg26MCVrN6DEZcwggtd8pTFx%2Fh3B9B50YLaFOPwXQKUt0tBLegtSomfBlfY13PwijbEnhztGzgJsK5h9W9qeWwBqjvyhB2iBs1Qz0AU974DciRGO8CVN8AJhAeMAdA3KbrKEtvxhsI%2B9emWiJlGBEU680Cfk%2BSsVqXZvcFYGXjF8ABVJ%2BTNfVXehyms1zzn1gmIOxLEB6E31%2FWBe5rnCarmo7elf7dJEeaLh80GasliI5F6Q9cAz1GY1OJVNDxTzQTw7iY%2FHEZRQY7xqJ9RU2LFe%2FYqakdP911ha0XhjjiTVAkDwgatWfCGeYocx8M3glG8g8EXhSrLrHnEFJ5Ymow%2FkhIYv6ttYUW1iFmEqqxdVoUs9FmsDYSqmtmJh3Cl1%2BVtl2s7owDUdocR5bceiyoSivGTT5vzpbzL1uoBpmcAAQgW7ArnKD9ng9rc%2BNgrobSNwpSkkhcRN%2BvmXLjIsDovYHHEfmsYFygPAnIDEQrQPzJYCOaLHLUfIt7Oq0LJn9fxkSgNCb1qEIQ5UKgT%2Fs6gJmVOOroJhQBXVqw118QtWLdyUxEP45sUpSzqP7RDdFYMyB9UReMiF1MzPwoUqHt8hjGFFeP5wZAbZ%2F0%2BcAtAAcji6LeSq%2FMYiAvSsdw3GtrfVSVFUBbIhwRWYR7yOcr%2FBi%2FB1MSJZ16JlgH1AGM3EO2QnmMyrSbTSiACgFBv4yCUapZkt9qwWVL7aeOyHvArJjm8%2Fz9BhdI4XcZgz2%2FvRALosjsk1ODOyMcJn9%2FYI6IrkS5vxMGdUwou2YKfyVqJpn5t9aNs3gbQMbdbkxnGdsr4bTHm2AxWo9yNZK4PXR3uzhAh%2BM0AZejnCrGdy0UvJxl0oMKgWSLR%2B1LH2aE9ViejiFs%2BXn6bTjng3MlIhJ1I1TkuLdg6OcAbD7Xx%2Bc3y9TrWAiSHqVkbZ2v9ilCo6s4AjwZCzFyD9mOL305nV9aonvsQeT2L0gVk4OwOJqXXVRW7naaxswDKVdlYLyMXAnntteYmws2xcVVZzq%2BtHPAooQggmJkc6TLSusOiL4RKgwzzYU1iFQgiUBA1H7E8yPau%2BZl9P7AblVNebtHqTgxLfRqrNvZWjsHZFuqMqKcDWdlFjF7UGvX8Jn24DyEAykJwNcdg0OvJ4p5pQ9tV6SMlP4A0PNh8aYze1ArROyUNTNouy8tNF3Rt0CSXb6bRFl4%2FIfQzNMjaE9WwpYOWQnOdEF%2BTdJNO0iFh7%2BI0kfORzQZb6P2kymS9oTxzBiM9rUqLWr1WE5G6ODhycQd%2FUnNVeMbcH68hYkGycNoUNWc8fxaxfwhDbHpfwM5oeTY7rUX8QAAAABJRU5ErkJggg%3D%3D">
+            <img class="svg-badge" src="../static/images/{{ dev_status[1] }}" title="{{ dev_status[0] }}">
             {%- endif -%}
         </p>
-        <p class="summaryinfo">
-            {% for summaryinfoelem in summary_info %}
-            <span class="badge">
-                <span class="badge-left {{summaryinfoelem.colorclass}}">{{summaryinfoelem.text}}</span>
-                <span class="badge-right">{{summaryinfoelem.count}}</span>
-            </span>
-            {% endfor %}
-        </p>
-
         {%  if plugin.pip_install_cmd %}
         <p>
             <strong>How to install</strong>: <code>{{ plugin.pip_install_cmd }}</code>
@@ -46,7 +36,7 @@
         </p>
     </div>
 
-    {% if plugin.documentation_url %}
+    {% if plugin.docs_url %}
         <p>
             <strong>Documentation</strong>: <a href="{{ plugin.docs_url }}" target="_blank">Go to plugin documentation</a>
         <p>
@@ -75,17 +65,50 @@
         <p>
             <strong>Most recent version</strong>: {{ plugin.version }}
         </p>
-
-        {% if summaryinfo %}
-        <h3>Plugins provided by the package</h3>
-
+        {%- if plugin.pycsou_version -%}
+        <p>
+            <strong>Compatibility</strong>:
+            <img class="svg-badge" title="Compatible with Pyxu {{ plugin.pycsou_version }}" src="https://img.shields.io/badge/Pyxu-{{ plugin.pycsou_version }}-007ec6.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAARCAYAAADQWvz5AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAfFJREFUOI2Vkl9IU1Ecxz933TVdFlHOt9pfg1AcBS0MCSUIIRa2XjLowbegiKAggujFN80gevWhHuzdsH8UpJkQ+JKyheRyW1Qyc2xG3Nrudn896C7Ti237vJ3fOedzvr9zjiIiQgVi6PB9CCMd5a9yHJpase8PsCb7cLlcbItskH/3UrSh27J0uVNkxiky4xR9/ICsvrkr3oNuSWuGpDVDus70ysjwPdmKrSzUHz3EWJinkG2sPAaAucUEK/EYJw77mJ54wfinWUsgG8DU5KRZaNhhulEa8gDs3qnQFw4D0BcOk135SeexkFWkaRqnYxkctwZpbvuCnnRuzCoARM6f4kJ/PwCPx8YIdLSTyWU3iZStl12m8H6Q0sdR5I+Nb4bK9eVuvi4scuhoEID5J0+JJxPVRZUEPF46Lp41x78zWZZeTXMuEmH4/kh9IgBf70kQIfX2A6WCDmCmUqtJypQ3iAitXp9l3mapVEFRFOLJBEW9WJvowbVL/xWq9s3NWForFYuM3rnKcuIzA8EWvO1HmHj+jJ7uHq7cvIG/SWU29YPQrjUcqspAsGU9aS2XLQhzU6+xNzppC3XRvGcvAKu/chWL6iQWjYrf7RG/2yOpVMqs15SokvJXyOfzOBwO8zXrfjWzE8MAIJdbb6/uRNvxD+osJR0a6bPBAAAAAElFTkSuQmCC">
+        </p>
+        {%- endif -%}
+        {%  if plugin.description %}
+        <p>
+            <strong>Description</strong>: {{ plugin.description }}
+        </p>
         {% endif %}
-
+        <h3>Plugins provided by the package</h3>
+        <p class="summaryinfo">
+            {% for summaryinfoelem in summary_info %}
+            <span class="badge">
+                <span class="badge-left {{summaryinfoelem.colorclass}}">{{summaryinfoelem.text}}</span>
+                <span class="badge-right">{{summaryinfoelem.count}}</span>
+            </span>
+            {% endfor %}
+        </p>
+        {% if entry_points %}
+            {% for entrypointtype, entrypointlist in entry_points.items() %}
+                <h4>
+                    {% if entrypointtype in entrypointtypes.keys() %}
+                      {{ entrypointtypes[entrypointtype].shortname}} <span class="entrypointraw">({{ entrypointtype }})</span>
+                    {% else %}
+                      {{ entrypointtype }}
+                    {% endif %}
+                </h4>
+                <ul>
+                {% for ep_name, ep_module in entrypointlist.items() %}
+                <li><code>{{ ep_name }}</code>
+                    <div class="classbox">class<span class="tooltiptext">
+                        {{ ep_module }}
+                    </span></div></li>
+                {% endfor %}
+                </ul>
+            {% endfor %}
+        {% else %}
+        <p>No entry points defined for this plugin.</p>
+        {% endif %}
     </div>
 
 
 </main>
 
 {% endblock body %}
-
-{# Needed because of the different relative path #}
