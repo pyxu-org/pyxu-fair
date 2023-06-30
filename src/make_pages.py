@@ -102,7 +102,7 @@ plugin_template = env.get_template(os.path.join("templates", "plugin.html"))
 # Connect to the SQLite database and retrieve the plugins
 conn = sqlite3.connect('plugins.db')
 c = conn.cursor()
-c.execute("SELECT name, pycsou_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints FROM plugins")
+c.execute("SELECT name, pycsou_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score FROM plugins")
 plugins = []
 for row in c.fetchall():
     plugins.append({
@@ -118,7 +118,7 @@ for row in c.fetchall():
         'license': row[9],
         'development_status': row[10],
         'entrypoints': row[11],
-        # 'score': row[12]
+        'score': row[12],
     })
 conn.close()
 

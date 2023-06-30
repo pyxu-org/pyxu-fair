@@ -52,6 +52,12 @@
                 <a href="{{ plugin.docs_url }}" target="_blank">Documentation</a>
             </li>
         {% endif %}
+
+        {% if plugin.score %}
+            <li>
+                <a> Score: {{ plugin.score }} % </a>
+            </li>
+        {% endif %}
         </ul>
 
         <p class="summaryinfo">

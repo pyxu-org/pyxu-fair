@@ -52,6 +52,18 @@ plugin_list = [
      ("EnvironTracker", "A plugin to image environmental signals"),
 ]
 
+LATEST = "2.0.0"
+def get_score(plugin_data):
+    score = 0
+    score += plugin_data["info"].get("pycsou_version", "0.0.0") == LATEST
+    # Give two points for Beta / Production/Stable / Mature
+    ds = plugin_data["info"].get("development_status", devstat[-1])
+    score += (ds in ["1", "2", "3"]) * 0.5 + (ds in ["4", "5", "6"]) * 1
+    score += min(plugin_data["info"].get("downloads", {}).get("last_month", 0), 1000 ) / 1000
+    score = int(score/3 * 100)  # normalize by number of ingredients
+    score *= (ds != "7")
+    return score
+
 def main():
     Path.unlink(DATABASE_FILE)
     # Connect to the database
@@ -60,7 +72,7 @@ def main():
 
     # Create the plugins table
     c.execute('''CREATE TABLE IF NOT EXISTS plugins
-                 (name text, pycsou_version text, version text, author text, author_email text, docs_url text, home_page text, short_description text, description text, license text, development_status text, entrypoints text)''')
+                 (name text, pycsou_version text, version text, author text, author_email text, docs_url text, home_page text, short_description text, description text, license text, development_status text, entrypoints text, score real)''')
 
     for plugin in plugin_list:
         name = plugin[0]
@@ -91,7 +103,17 @@ def main():
                     '{"' + ep_key + '": {"' + ep_name + '": "' + name.replace('-', '_') + ":" + ep_name + '"}}')
                 entrypoints.update(ep_dict)
         entrypoints = json.dumps(entrypoints)
-        c.execute("INSERT INTO plugins VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (name, pycsou_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints))
+
+        plugin_data = {
+            "info": {
+                "pycsou_version": pycsou_version,
+                "development_status": development_status,
+                "downloads": {"last_month": random.randint(1, 1000)}
+            }
+        }
+
+        score = get_score(plugin_data)
+        c.execute("INSERT INTO plugins VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (name, pycsou_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score))
 
     # Commit changes to the database and close the connection
     conn.commit()
