@@ -53,7 +53,7 @@ def parse_entrypoints(plugin_data, parse_wheel=True):
             build_types[data.get("packagetype")] = data.get("url")
     if "bdist_wheel" not in build_types:
         warnings.warn("No bdist_wheel available for PyPI release")
-        
+
     if not build_types.get("bdist_wheel") or not parse_wheel:
         return "{}"
 
@@ -92,9 +92,9 @@ def main():
 
     # Create the plugins table
     c.execute('''CREATE TABLE IF NOT EXISTS plugins
-                 (name text, pycsou_version text, version text, author text, author_email text, docs_url text, home_page text, short_description text, description text, license text, development_status text, entrypoints text)''')
+                 (name text, pyxu_version text, version text, author text, author_email text, docs_url text, home_page text, short_description text, description text, license text, development_status text, entrypoints text)''')
 
-    # Query the PyPI API for plugins of the Pycsou framework
+    # Query the PyPI API for plugins of the Pyxu framework
     plugin_names = query_pypi()
 
     # Extract metadata from each plugin's configuration file and store it in the database
@@ -104,7 +104,7 @@ def main():
         plugin_data = response.json()
 
         name = plugin_data["info"]["name"]
-        pycsou_version = "2"
+        pyxu_version = "2"
         version = plugin_data["info"]["version"]
         author = plugin_data["info"]["author"]
         author_email = plugin_data["info"]["author_email"]
@@ -116,7 +116,7 @@ def main():
         development_status = plugin_data["info"].get("development_status", "planning")
         entrypoints = parse_entrypoints(plugin_data)
 
-        c.execute("INSERT INTO plugins VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (name, pycsou_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints))
+        c.execute("INSERT INTO plugins VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (name, pyxu_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints))
 
     # Commit changes to the database and close the connection
     conn.commit()

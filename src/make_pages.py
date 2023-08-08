@@ -8,23 +8,23 @@ import json
 
 entrypoint_metainfo = {
 
-    "pycsou.operator": {
+    "pyxu.operator": {
         "shortname": "Operator",
         "colorclass": "blue",
     },
-    "pycsou.solver": {
+    "pyxu.solver": {
         "shortname": "Solver",
         "colorclass": "brown",
     },
-    "pycsou.stop": {
+    "pyxu.stop": {
         "shortname": "Stop",
         "colorclass": "purple",
     },
-    "pycsou.math": {
+    "pyxu.math": {
         "shortname": "Math",
         "colorclass": "yellow",
     },
-    "pycsou.contrib": {
+    "pyxu.contrib": {
         "shortname": "Contrib",
         "colorclass": "orange",
     },
@@ -88,7 +88,7 @@ def get_summary_info(entry_points):
                 )
                 entrypoints_count[entrypoint_name].append(num)
         except KeyError:
-            # No pycsou-specific entrypoints, pass
+            # No pyxu-specific entrypoints, pass
             pass
 
     return summary_info
@@ -102,12 +102,12 @@ plugin_template = env.get_template(os.path.join("templates", "plugin.html"))
 # Connect to the SQLite database and retrieve the plugins
 conn = sqlite3.connect('plugins.db')
 c = conn.cursor()
-c.execute("SELECT name, pycsou_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score FROM plugins")
+c.execute("SELECT name, pyxu_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score FROM plugins")
 plugins = []
 for row in c.fetchall():
     plugins.append({
         'name': row[0],
-        'pycsou_version': row[1],
+        'pyxu_version': row[1],
         'version': row[2],
         'author': row[3],
         'author_email': row[4],

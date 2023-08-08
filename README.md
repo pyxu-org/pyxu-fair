@@ -1,1 +1,1 @@
-# pycsou-fair
+# Pyxu-fair
