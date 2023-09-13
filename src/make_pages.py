@@ -4,8 +4,6 @@ from jinja2 import Environment, FileSystemLoader
 import sqlite3
 import json
 
-# from . import status_dict, entrypoint_metainfo
-
 entrypoint_metainfo = {
 
     "pyxu.operator": {
@@ -96,8 +94,6 @@ def get_summary_info(entry_points):
 
 # Load the Jinja2 catalogue_template
 env = Environment(loader=FileSystemLoader('.'))
-catalogue_template = env.get_template(os.path.join("templates", "catalogue.html"))
-plugin_template = env.get_template(os.path.join("templates", "plugin.html"))
 
 # Connect to the SQLite database and retrieve the plugins
 conn = sqlite3.connect('plugins.db')
@@ -129,13 +125,14 @@ plugins_info = {
     "dev_status_count":   {k: {"badge": v[1], "num_entries": 0} for k, v in status_dict.items()}
 }
 
-if os.path.exists("html/"):
-    for f in os.listdir("html/"):
-        if not f.endswith(".html"):
+if os.path.exists("rst/"):
+    for f in os.listdir("rst/"):
+        if not f.endswith(".rst"):
             continue
-        os.remove(os.path.join("html/", f))
+        os.remove(os.path.join("rst/", f))
 else:
-    os.mkdir("html")
+    os.mkdir("rst")
+
 # Render the plugin_template for each specific plugin data
 for plugin in plugins:
     summary_info = get_summary_info(plugin["entrypoints"])
@@ -143,26 +140,30 @@ for plugin in plugins:
     plugins_info["summary_info"].update({plugin["name"]: summary_info})
     plugins_info["dev_status"].update({plugin["name"]: dev_status})
     for entry in summary_info:
-        plugins_info["summary_info_count"][entry["text"]]["num_entries"] += entry["count"]
-        plugins_info["summary_info_count"][entry["text"]]["total_num"] += 1
+        plugins_info["summary_info_count"][entry["text"]]["num_entries"] += 1
+        plugins_info["summary_info_count"][entry["text"]]["total_num"] += entry["count"]
     plugins_info["dev_status_count"][plugin["development_status"]]["num_entries"] += 1
     entrypoints = json.loads(plugin["entrypoints"])
-    html = plugin_template.render(plugin=plugin,
+
+    rst_plugin_template = env.get_template(os.path.join("templates", "plugin.rst"))
+    rst = rst_plugin_template.render(plugin=plugin,
                                   summary_info=summary_info,
                                   dev_status=dev_status,
                                   entry_points=entrypoints,
                                   entrypointtypes=entrypoint_metainfo)
-    with open(f'html/{plugin["name"]}.html', 'w') as f:
-        f.write(html)
-
+    with open(f'rst/{plugin["name"]}.rst', 'w') as f:
+        f.write(rst)
 
 # Render the catalogue_template with the data for all the plugins
-html = catalogue_template.render(plugins=plugins,
-                                 summary_info=plugins_info["summary_info"],
-                                 dev_status=plugins_info["dev_status"],
-                                 dev_status_count=plugins_info["dev_status_count"],
-                                 summary_info_count=plugins_info["summary_info_count"].values(),)
 
-# Write the HTML to a file
-with open('html/index.html', 'w') as f:
-    f.write(html)
+rst_catalogue_template = env.get_template(os.path.join("templates", "catalogue.rst"))
+rst = rst_catalogue_template.render(plugins=plugins,
+                                     summary_info=plugins_info["summary_info"],
+                                     dev_status=plugins_info["dev_status"],
+                                     dev_status_count=plugins_info["dev_status_count"],
+                                     summary_info_count=plugins_info["summary_info_count"].values(),)
+
+
+# Write the RST to a file
+with open('../../../git/pyxu/doc/fair/plugins/index.rst', 'w') as f:
+    f.write(rst)
