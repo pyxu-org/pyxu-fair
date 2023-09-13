@@ -37,7 +37,7 @@ plugin_list = [
      ("PYFW", "Polyatomic Frank-Wolfe for the LASSO problem"),
      ("pycWavelet", "Optimized and accurate wavelet transforms for Pyxu"),
      ("Palentologist", "Toolset for single-cell track analysis in Python"),
-     ("TokemakRec", "Plasma imaging for tokemak data"),
+     ("TokamakRec", "Plasma imaging for tokamak data"),
      ("OrientationPy", "Analysis of greyscale orientations from 2D or 3D image"),
      ("WaveProp", "Wave propagation reconstruction"),
      ("HoughDetector", "A plugin for napari that detects circles using the Hough transform"),
