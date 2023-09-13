@@ -151,7 +151,7 @@ for plugin in plugins:
                                   dev_status=dev_status,
                                   entry_points=entrypoints,
                                   entrypointtypes=entrypoint_metainfo)
-    with open(f'rst/{plugin["name"]}.rst', 'w') as f:
+    with open(f'./../../git/pyxu/doc/fair/plugins_preview/{plugin["name"]}.rst', 'w') as f:
         f.write(rst)
 
 # Render the catalogue_template with the data for all the plugins
