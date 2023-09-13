@@ -12,8 +12,7 @@ import json
 from pathlib import Path
 
 DATABASE_FILE = "plugins.db"
-#TROVE_CLASSIFIER = "Framework :: pycsou"
-TROVE_CLASSIFIER = "Framework :: AiiDA"
+TROVE_CLASSIFIER = "Framework :: Pycsou"
 
 
 def query_pypi() -> Dict[str, str]:
@@ -89,14 +88,15 @@ def main():
     # Connect to the database
     conn = sqlite3.connect(DATABASE_FILE)
     c = conn.cursor()
+    c.execute('''DROP TABLE IF EXISTS plugins''')
 
     # Create the plugins table
     c.execute('''CREATE TABLE IF NOT EXISTS plugins
-                 (name text, pyxu_version text, version text, author text, author_email text, docs_url text, home_page text, short_description text, description text, license text, development_status text, entrypoints text)''')
+                 (name text, pyxu_version text, version text, author text, author_email text, docs_url text, home_page text, short_description text, description text, license text, development_status text, entrypoints text, score integer)''')
 
     # Query the PyPI API for plugins of the Pyxu framework
     plugin_names = query_pypi()
-
+    pyxu_version = "1"
     # Extract metadata from each plugin's configuration file and store it in the database
     for plugin_name in plugin_names:
         url = f"https://pypi.org/pypi/{plugin_name}/json"
@@ -104,19 +104,20 @@ def main():
         plugin_data = response.json()
 
         name = plugin_data["info"]["name"]
-        pyxu_version = "2"
         version = plugin_data["info"]["version"]
         author = plugin_data["info"]["author"]
         author_email = plugin_data["info"]["author_email"]
         docs_url = plugin_data["info"]["docs_url"]
         home_page = plugin_data["info"]["home_page"]
-        short_description = "Not Available"
+        short_description = plugin_data["info"]["summary"]
         description = plugin_data["info"]["description"]
         license = plugin_data["info"]["license"]
-        development_status = plugin_data["info"].get("development_status", "planning")
+        development_status = [elem for elem in plugin_data["info"]["classifiers"] if "Development Status" in elem]
+        development_status = development_status.split(" ")[0][3] if len(development_status) else "1"
         entrypoints = parse_entrypoints(plugin_data)
+        score = 1
 
-        c.execute("INSERT INTO plugins VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (name, pyxu_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints))
+        c.execute("INSERT INTO plugins VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (name, pyxu_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score))
 
     # Commit changes to the database and close the connection
     conn.commit()

@@ -6,7 +6,7 @@ import names
 import lorem
 from wonderwords import RandomWord
 
-DATABASE_FILE = "plugins.db"
+DATABASE_FILE = "plugins_fake.db"
 rows = ['name', 'pyxu_version', 'version', 'author', 'author_email', 'docs_url', 'home_page', 'short_description', 'description', 'license', 'development_status', 'entrypoints']
 
 n_entries = 10
