@@ -20,7 +20,7 @@ entrypoint_metainfo = {
     },
     "pyxu.math": {
         "shortname": "Math",
-        "colorclass": "yellow",
+        "colorclass": "green",
     },
     "pyxu.contrib": {
         "shortname": "Contrib",
@@ -98,7 +98,7 @@ env = Environment(loader=FileSystemLoader('.'))
 # Connect to the SQLite database and retrieve the plugins
 conn = sqlite3.connect('plugins.db')
 c = conn.cursor()
-c.execute("SELECT name, pyxu_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score FROM plugins")
+c.execute("SELECT name, pyxu_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score FROM plugins ORDER BY name COLLATE NOCASE ASC")
 plugins = []
 for row in c.fetchall():
     plugins.append({
