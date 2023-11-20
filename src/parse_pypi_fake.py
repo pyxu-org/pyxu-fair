@@ -6,7 +6,7 @@ import names
 import lorem
 from wonderwords import RandomWord
 
-DATABASE_FILE = "plugins_fake.db"
+DATABASE_FILE = Path.cwd() / "plugins_fake.db"
 rows = ['name', 'pyxu_version', 'version', 'author', 'author_email', 'docs_url', 'home_page', 'short_description', 'description', 'license', 'development_status', 'entrypoints']
 
 n_entries = 10
@@ -52,7 +52,7 @@ plugin_list = [
      ("EnvironTracker", "A plugin to image environmental signals"),
 ]
 
-LATEST = "2.0.0"
+LATEST = "1"
 def get_score(plugin_data):
     score = 0
     score += plugin_data["info"].get("pyxu_version", "0.0.0") == LATEST
@@ -71,12 +71,12 @@ def main():
     c = conn.cursor()
 
     # Create the plugins table
-    c.execute('''CREATE TABLE IF NOT EXISTS plugins
+    c.execute('''CREATE TABLE IF NOT EXISTS plugins_fake
                  (name text, pyxu_version text, version text, author text, author_email text, docs_url text, home_page text, short_description text, description text, license text, development_status text, entrypoints text, score real)''')
 
     for plugin in plugin_list:
         name = plugin[0]
-        pyxu_version = "2.0.0"
+        pyxu_version = "1.0.0"
         version = "0.1.0"
         author = names.get_full_name()
         author_email = f"{author.lower().replace(' ', '.')}@pyxu_user.org"
@@ -113,7 +113,7 @@ def main():
         }
 
         score = get_score(plugin_data)
-        c.execute("INSERT INTO plugins VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (name, pyxu_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score))
+        c.execute("INSERT INTO plugins_fake VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (name, pyxu_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score))
 
     # Commit changes to the database and close the connection
     conn.commit()

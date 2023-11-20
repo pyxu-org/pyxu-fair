@@ -98,10 +98,10 @@ env = Environment(loader=FileSystemLoader('.'))
 # Connect to the SQLite database and retrieve the plugins
 conn = sqlite3.connect('plugins_fake.db')
 c = conn.cursor()
-c.execute("SELECT name, pyxu_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score FROM plugins ORDER BY name COLLATE NOCASE ASC")
-plugins = []
+c.execute("SELECT name, pyxu_version, version, author, author_email, docs_url, home_page, short_description, description, license, development_status, entrypoints, score FROM plugins_fake ORDER BY name COLLATE NOCASE ASC")
+plugins_fake = []
 for row in c.fetchall():
-    plugins.append({
+    plugins_fake.append({
         'name': row[0],
         'pyxu_version': row[1],
         'version': row[2],
@@ -134,7 +134,7 @@ else:
     os.mkdir("rst")
 
 # Render the plugin_template for each specific plugin data
-for plugin in plugins:
+for plugin in plugins_fake:
     summary_info = get_summary_info(plugin["entrypoints"])
     dev_status = status_dict[plugin["development_status"]]
     plugins_info["summary_info"].update({plugin["name"]: summary_info})
@@ -151,18 +151,17 @@ for plugin in plugins:
                                   dev_status=dev_status,
                                   entry_points=entrypoints,
                                   entrypointtypes=entrypoint_metainfo)
-    with open(f'./../../git/pyxu/doc/fair/plugins_preview/{plugin["name"]}.rst', 'w') as f:
+    with open(f'../../pyxu/doc/fair/plugins_preview/{plugin["name"]}.rst', 'w') as f:
         f.write(rst)
 
 # Render the catalogue_template with the data for all the plugins
 
 rst_catalogue_template = env.get_template(os.path.join("templates", "catalogue.rst"))
-rst = rst_catalogue_template.render(plugins=plugins,
+rst = rst_catalogue_template.render(plugins=plugins_fake,
                                      summary_info=plugins_info["summary_info"],
                                      dev_status=plugins_info["dev_status"],
                                      dev_status_count=plugins_info["dev_status_count"],
                                      summary_info_count=plugins_info["summary_info_count"].values(),)
-
 
 # Write the RST to a file
 with open('../../../git/pyxu/doc/fair/plugins_preview/index.rst', 'w') as f:
